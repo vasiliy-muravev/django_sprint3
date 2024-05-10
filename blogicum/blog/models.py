@@ -1,3 +1,93 @@
+from django.db import models
+from blogicum.core.models import PublishedModel
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class Category(PublishedModel):
+    title = models.CharField(
+        'Название',
+        max_length=256,
+        help_text='Название категории, не более 256 символов, обязательное поле'
+    )
+    description = models.TextField(
+        'Описание',
+        help_text='Описание публикации, обязательное поле'
+    )
+    slug = models.SlugField(
+        'Ссылка',
+        max_length=64,
+        unique=True,
+        help_text='Уникальная ссылка на категорию, не более 256 символов, обязательное поле'
+    )
+
+    class Meta:
+        verbose_name = 'категорию'
+        verbose_name_plural = 'Категории'
+
+    def __str__(self):
+        return self.title
+
+
+class Location(PublishedModel):
+    title = models.CharField(
+        'Название',
+        max_length=256,
+        help_text='Название географической метки, не более 256 символов, обязательное поле'
+    )
+
+    class Meta:
+        verbose_name = 'географическую метку'
+        verbose_name_plural = 'Географические метки'
+
+    def __str__(self):
+        return self.title
+
+
+class Post(PublishedModel):
+    title = models.CharField(
+        'Название',
+        max_length=256,
+        help_text='Название публикации, не более 256 символов, обязательное поле'
+    )
+    text = models.TextField(
+        'Текст публикации',
+        help_text='Текст публикации, обязательное поле'
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='Дата публикации',
+        help_text='Дата публикации, обязательное поле'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='posts',
+        verbose_name='Автор'
+    )
+    location = models.ForeignKey(
+        Location,
+        on_delete=models.SET_NULL,
+        related_name='posts',
+        null=True,
+        blank=True,
+        verbose_name='Локация'
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        related_name='posts',
+        verbose_name='Категория'
+    )
+
+    class Meta:
+        verbose_name = 'публикацию'
+        verbose_name_plural = 'Публикации'
+
+    def __str__(self):
+        return self.title
+
+
 posts = [
     {
         'id': 0,
