@@ -45,7 +45,8 @@ class PostAdmin(admin.ModelAdmin):
         'is_published',
         'author',
         'location',
-        'category'
+        'category',
+        'pub_date'
     )
     search_fields = ('title',)
     list_filter = ('author', 'location', 'category')
