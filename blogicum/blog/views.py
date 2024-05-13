@@ -1,21 +1,11 @@
 from django.shortcuts import render
-from django.utils.timezone import now
 
 from .models import Post, Category
 
 
 def index(request):
     template = 'blog/index.html'
-    post_list = (
-        Post.objects
-        .select_related('category', 'author', 'location')
-        .filter(
-            is_published=True,
-            category__is_published=True,
-            pub_date__lte=now()
-        )
-        .order_by('-created_at')[:5]
-    )
+    post_list = Post.objects.order_by('-created_at')[:5]
     context = {
         'post_list': post_list,
     }
@@ -24,9 +14,7 @@ def index(request):
 
 
 def category_posts(request, category_slug):
-    category = (
-        Category.objects.filter(is_published=True, slug=category_slug).first()
-    )
+    category = Category.objects.get(is_published=True, slug=category_slug)
 
     if not category:
         context = {'message': 'Категория не найдена'}
@@ -35,14 +23,7 @@ def category_posts(request, category_slug):
         )
 
     template = 'blog/category.html'
-    post_list = (
-        Post.objects
-        .select_related('category', 'author', 'location')
-        .filter(
-            is_published=True, category_id=category.id, pub_date__lte=now()
-        )
-        .order_by('-created_at')
-    )
+    post_list = Post.objects.filter(category_id=category).order_by('-created_at')
     context = {
         'category': category_slug,
         'post_list': post_list
@@ -52,17 +33,7 @@ def category_posts(request, category_slug):
 
 
 def post_detail(request, id):
-    post = (
-        Post.objects
-        .select_related('category', 'author', 'location')
-        .filter(
-            is_published=True,
-            category__is_published=True,
-            pub_date__lte=now(),
-            pk=id
-        )
-        .first()
-    )
+    post = Post.objects.filter(pk=id).first()
 
     if not post:
         context = {'message': 'Публикация не найдена'}

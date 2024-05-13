@@ -1,6 +1,8 @@
 from django.db import models
-from core.models import PublishedModel
 from django.contrib.auth import get_user_model
+from django.utils.timezone import now
+
+from core.models import PublishedModel
 
 User = get_user_model()
 
@@ -48,6 +50,19 @@ class Location(PublishedModel):
         return self.name
 
 
+class BasePostManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super().get_queryset()
+            .select_related('category', 'author', 'location')
+            .filter(
+                is_published=True,
+                category__is_published=True,
+                pub_date__lte=now()
+            )
+        )
+
+
 class Post(PublishedModel):
     title = models.CharField(
         'Заголовок',
@@ -86,6 +101,9 @@ class Post(PublishedModel):
         blank=False,
         null=True
     )
+
+    # Базовый запрос постов
+    objects = BasePostManager()
 
     class Meta:
         verbose_name = 'публикация'
