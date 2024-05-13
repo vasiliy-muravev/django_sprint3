@@ -14,7 +14,13 @@ def index(request):
 
 
 def category_posts(request, category_slug):
+    """
+    Работает, но не проходит тесты.
     category = Category.objects.get(is_published=True, slug=category_slug)
+    """
+    category = (
+        Category.objects.filter(is_published=True, slug=category_slug).first()
+    )
 
     if not category:
         context = {'message': 'Категория не найдена'}
@@ -23,7 +29,11 @@ def category_posts(request, category_slug):
         )
 
     template = 'blog/category.html'
-    post_list = Post.objects.filter(category_id=category).order_by('-created_at')
+    post_list = (
+        Post.objects
+        .filter(category_id=category)
+        .order_by('-created_at')
+    )
     context = {
         'category': category_slug,
         'post_list': post_list
